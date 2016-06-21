@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<workbook>
+    <worksheet name="学生信息">
+        <section startRow="0" endRow="0">  
+           <!--  <mapping cell="A1">department.name</mapping>  
+            <mapping cell="B1">department.chief.name</mapping>  
+            <mapping cell="C1">department.chief.age</mapping>
+            <mapping row="0" col="3">department.chief.bonus</mapping>   -->
+        </section> 
+        <loop startRow="1" endRow="1" items="students" var="stu" varType="com.excel.web.entity.Student">
+            <section startRow="1" endRow="1">
+                <mapping row="1" col="0">stu.id</mapping>
+                <mapping row="1" col="1">stu.name</mapping>
+                <mapping row="1" col="2">stu.subject</mapping>
+                <mapping row="1" col="3">stu.score</mapping>
+            </section>
+            <loopbreakcondition>
+                <rowcheck offset="0">
+                <cellcheck offset="0"></cellcheck>
+                </rowcheck>
+            </loopbreakcondition>
+        </loop>
+    </worksheet>
+</workbook>

@@ -79,15 +79,13 @@ public class ExcelUtil {
 		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "学生信息.xls";
 		
 		Map<String, Object> beanParams = new HashMap<String, Object>();
-		Student stu = new Student();
 		List<Student> students = new ArrayList<Student>();
-		beanParams.put("stu", stu);
 		beanParams.put("students", students);
 		readExcel(configFilePath, beanParams, srcReadFilePath);
 		
 		System.out.println("ID\t  name\t  subject\t  score");
-		for(Student student:students){
-			System.out.println(student.getId()+"\t  "+student.getName()+"\t  "+student.getSubject()+"\t  "+student.getScore());
+		for(Student stu:students){
+			System.out.println(stu.getId()+"\t  "+stu.getName()+"\t  "+stu.getSubject()+"\t  "+stu.getScore());
 		}
 	}
 

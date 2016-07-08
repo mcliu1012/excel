@@ -157,6 +157,12 @@ public class ExcelUtil {
 				return 2;// 小型饮料机
 			case "CVM-KZGPC23.6":
 				return 3;// 中控机
+			case "CVM-FD48WXT":
+				return 4;// 弹簧机
+			case "CVM-SPG64":
+				return 5;// 64门格子柜
+			case "CVM-SPG40":
+				return 6;// 40门格子柜
 			default:
 				return 0;
 		}

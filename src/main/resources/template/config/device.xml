@@ -3,7 +3,7 @@
     <worksheet name="设备">
         <section startRow="0" endRow="0">  
         </section> 
-        <loop startRow="1" endRow="1" items="devices" var="dev" varType="com.vendor.domain.Device">
+        <loop startRow="1" endRow="1" items="devices" var="dev" varType="com.excel.web.entity.Device">
             <section startRow="1" endRow="1">
                 <mapping row="1" col="0">dev.devNo</mapping>
                 <mapping row="1" col="1">dev.typeStr</mapping>

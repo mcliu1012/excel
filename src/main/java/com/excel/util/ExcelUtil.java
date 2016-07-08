@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,8 +91,10 @@ public class ExcelUtil {
 //		for(Student stu:students){
 //			System.out.println(stu.getId()+"\t  "+stu.getName()+"\t  "+stu.getSubject()+"\t  "+stu.getScore());
 //		}
-		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
-		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
+//		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
+//		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
+		String configFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
+		String srcReadFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
 		
 		Map<String, Object> beanParams = new HashMap<String, Object>();
 		List<Device> devices = new ArrayList<Device>();
@@ -100,7 +103,7 @@ public class ExcelUtil {
 		
 		for(Device dev:devices){
 			if (!StringUtils.isEmpty(dev.getDevNo()) ) {
-				System.out.println(dev.getDevNo()+"\t  "+dev.getAddress()+"\t  "+dev.getModel()+"\t  "+dev.getFactoryNo()+"\t  "+dev.getPointAddress());
+				System.out.println(dev.getDevNo()+"\t  "+dev.getTypeStr()+"\t  "+dev.getModel()+"\t  "+dev.getCabinetNo()+"\t  "+dev.getFactoryNo()+"\t  "+dev.getFactoryTimeStr());
 			}
 		}
 		
@@ -120,9 +123,19 @@ public class ExcelUtil {
 			
 			// 构造设备信息
 			Device finalDevice = createDevice(dev);
-			finalDevices.add(finalDevice);
 			
 			Cabinet finalCabinet = new Cabinet();
+			finalCabinet.setCabinetNo(dev.getCabinetNo());
+			finalCabinet.setAisleCount(getAisleCountByModel(dev.getModel()));
+			finalCabinet.setModel(dev.getModel());
+			finalCabinet.setFactoryNo(dev.getFactoryNo());
+			finalCabinet.setFactoryTime(new Timestamp(DateUtil.getDate(dev.getFactoryTimeStr()).getTime()));
+			finalCabinet.setCreateUser(1L);
+			finalCabinet.setCreateTime(new Timestamp(System.currentTimeMillis()));
+			finalDevice.addCainets(finalCabinet);
+			
+			
+			finalDevices.add(finalDevice);
 		}
 	}
 	
@@ -164,8 +177,27 @@ public class ExcelUtil {
 			case "CVM-SPG40":
 				return 6;// 40门格子柜
 			default:
-				return 0;
+				return -1;
 		}
+	}
+
+	public static Integer getAisleCountByModel(String model) {
+	    switch(model) {
+	        case "CVM-PC21PC42":
+	            return 10;// 饮料机
+	        case "CVM-PC12PC42":
+	            return 21;// 小型饮料机
+	        case "CVM-KZGPC23.6":
+	            return 0;// 中控机
+	        case "CVM-FD48WXT":
+	            return 48;// 弹簧机
+	        case "CVM-SPG64":
+	            return 64;// 64门格子柜
+	        case "CVM-SPG40":
+	            return 40;// 40门格子柜
+	        default:
+	            return -1;
+	    }
 	}
 	
 	public static List<Device> initDevices() {

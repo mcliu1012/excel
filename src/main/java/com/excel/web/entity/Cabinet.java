@@ -2,6 +2,8 @@ package com.excel.web.entity;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 货柜
@@ -61,6 +63,14 @@ public class Cabinet implements Serializable {
 	 * 出厂日期
 	 */
 	private Timestamp factoryTime;
+	
+	private List<DeviceAisle> deviceAisles;
+	
+	public void addDeviceAisles(DeviceAisle deviceAisle) {
+	    if (null == this.deviceAisles)
+	        this.deviceAisles = new ArrayList<DeviceAisle>();
+	    this.deviceAisles.add(deviceAisle);
+	}
 
 	public Integer getType() {
 		return type;
@@ -158,7 +168,15 @@ public class Cabinet implements Serializable {
 		this.factoryTime = factoryTime;
 	}
 
-	@Override
+	public List<DeviceAisle> getDeviceAisles() {
+        return deviceAisles;
+    }
+
+    public void setDeviceAisles(List<DeviceAisle> deviceAisles) {
+        this.deviceAisles = deviceAisles;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

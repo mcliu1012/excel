@@ -13,9 +13,12 @@ import java.util.Map;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.xml.sax.SAXException;
 
-import com.excel.web.entity.Student;
+import com.excel.web.entity.Cabinet;
+import com.excel.web.entity.Device;
+import com.excel.web.entity.DeviceAisle;
 
 import net.sf.jxls.exception.ParsePropertyException;
 import net.sf.jxls.reader.ReaderBuilder;
@@ -74,19 +77,238 @@ public class ExcelUtil {
 		}
 	}
 	
-	public static void main(String[] args) {
-		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "student.xml";
-		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "学生信息.xls";
+	public static void main(String[] args) throws Exception {
+//		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "student.xml";
+//		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "学生信息.xls";
+//		
+//		Map<String, Object> beanParams = new HashMap<String, Object>();
+//		List<Student> students = new ArrayList<Student>();
+//		beanParams.put("students", students);
+//		readExcel(configFilePath, beanParams, srcReadFilePath);
+//		
+//		System.out.println("ID\t  name\t  subject\t  score");
+//		for(Student stu:students){
+//			System.out.println(stu.getId()+"\t  "+stu.getName()+"\t  "+stu.getSubject()+"\t  "+stu.getScore());
+//		}
+		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
+		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
 		
 		Map<String, Object> beanParams = new HashMap<String, Object>();
-		List<Student> students = new ArrayList<Student>();
-		beanParams.put("students", students);
+		List<Device> devices = new ArrayList<Device>();
+		beanParams.put("devices", devices);
 		readExcel(configFilePath, beanParams, srcReadFilePath);
 		
-		System.out.println("ID\t  name\t  subject\t  score");
-		for(Student stu:students){
-			System.out.println(stu.getId()+"\t  "+stu.getName()+"\t  "+stu.getSubject()+"\t  "+stu.getScore());
+		for(Device dev:devices){
+			if (!StringUtils.isEmpty(dev.getDevNo()) ) {
+				System.out.println(dev.getDevNo()+"\t  "+dev.getAddress()+"\t  "+dev.getModel()+"\t  "+dev.getFactoryNo()+"\t  "+dev.getPointAddress());
+			}
 		}
+		
+		// 构造初始化数据
+		List<Device> finalDevices = new ArrayList<Device>();
+		List<Cabinet> finalCabinets = new ArrayList<Cabinet>();
+		List<DeviceAisle> finalDeviceAisles = new ArrayList<DeviceAisle>();
+		for (Device dev : devices) {
+			if (StringUtils.isEmpty(dev.getDevNo()) || StringUtils.isEmpty(dev.getModel()) || StringUtils.isEmpty(dev.getCabinetNo())
+					|| StringUtils.isEmpty(dev.getFactoryNo()) || StringUtils.isEmpty(dev.getFactoryTimeStr()))
+				throw new Exception("数据不完整，请上传完整的文件。");
+			
+			// 校验设备编号是否已存在
+//			Device dbDevice = findDeviceByDevNo(dev.getDevNo());
+//			if (null != dbDevice)
+//				throw new Exception("导入失败，设备编号【"+ dev.getDevNo() +"】已存在");
+			
+			// 构造设备信息
+			Device finalDevice = createDevice(dev);
+			finalDevices.add(finalDevice);
+			
+			Cabinet finalCabinet = new Cabinet();
+		}
+	}
+	
+	/**
+	 * 构建初始化设备信息
+	 * @param dev
+	 * @param user
+	 * @return
+	 */
+	public static Device createDevice(Device dev) {
+		Device finalDevice = new Device();
+		finalDevice.setDevNo(dev.getDevNo());
+		finalDevice.setNatrue(0);// 自营
+		finalDevice.setState(0);
+		finalDevice.setOrgId(1L);
+		finalDevice.setCreateUser(1L);
+		finalDevice.setType(getDeviceTypeByModel(dev.getModel()));
+		finalDevice.setPointId(0L);
+		return finalDevice;
+	}
+	
+	/**
+	 * 根据货柜型号取到设备类型
+	 * @param model
+	 * @return
+	 */
+	public static Integer getDeviceTypeByModel(String model) {
+		switch(model) {
+			case "CVM-PC21PC42":
+				return 1;// 饮料机
+			case "CVM-PC12PC42":
+				return 2;// 小型饮料机
+			case "CVM-KZGPC23.6":
+				return 3;// 中控机
+			default:
+				return 0;
+		}
+	}
+	
+	public static List<Device> initDevices() {
+		List<Device> devices = new ArrayList<Device>();
+		Device device1 = new Device();
+		device1.setDevNo("111");
+		device1.setTypeStr("智能饮料机（黑色定制）");
+		device1.setModel("CVM-PC21PC42");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("AAA");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device1);
+
+		Device device2 = new Device();
+		device1.setDevNo("222");
+		device1.setTypeStr("小型智能饮料机（黑色定制）");
+		device1.setModel("CVM-PC12PC42");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("BBB");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device2);
+		
+		Device device3 = new Device();
+		device1.setDevNo("333");
+		device1.setTypeStr("智能中控柜（黑色）");
+		device1.setModel("CVM-KZGPC23.6");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("CCC");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device3);
+		
+		Device device4 = new Device();
+		device1.setDevNo("444");
+		device1.setTypeStr("综合机辅机（黑色）");
+		device1.setModel("CVM-FD48WXT");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("DDD");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device4);
+		
+		Device device5 = new Device();
+		device1.setDevNo("555");
+		device1.setTypeStr("64门商品柜");
+		device1.setModel("CVM-SPG64");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("EEE");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device5);
+		
+		Device device6 = new Device();
+		device1.setDevNo("666");
+		device1.setTypeStr("40门商品柜");
+		device1.setModel("CVM-SPG40");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("FFF");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device6);
+		
+		Device device7 = new Device();
+		device1.setDevNo("777");
+		device1.setTypeStr("智能中控柜（黑色）");
+		device1.setModel("CVM-KZGPC23.6");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("GGG");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device7);
+		
+		Device device8 = new Device();
+		device1.setDevNo("777");
+		device1.setTypeStr("综合机辅机（黑色）");
+		device1.setModel("CVM-FD48WXT");
+		device1.setCabinetNo("2");
+		device1.setFactoryNo("HHH");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device8);
+		
+		Device device9 = new Device();
+		device1.setDevNo("777");
+		device1.setTypeStr("64门商品柜");
+		device1.setModel("CVM-SPG64");
+		device1.setCabinetNo("3");
+		device1.setFactoryNo("III");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device9);
+
+		Device device10 = new Device();
+		device1.setDevNo("777");
+		device1.setTypeStr("综合机辅机（黑色）");
+		device1.setModel("CVM-FD48WXT");
+		device1.setCabinetNo("4");
+		device1.setFactoryNo("JJJ");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device10);
+		
+		Device device11 = new Device();
+		device1.setDevNo("777");
+		device1.setTypeStr("64门商品柜");
+		device1.setModel("CVM-SPG64");
+		device1.setCabinetNo("5");
+		device1.setFactoryNo("KKK");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device11);
+		
+		Device device12 = new Device();
+		device1.setDevNo("888");
+		device1.setTypeStr("智能饮料机（黑色定制）");
+		device1.setModel("CVM-PC21PC42");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("LLL");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device12);
+		
+		Device device13 = new Device();
+		device1.setDevNo("999");
+		device1.setTypeStr("小型智能饮料机（黑色定制）");
+		device1.setModel("CVM-PC12PC42");
+		device1.setCabinetNo("1");
+		device1.setFactoryNo("MMM");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device13);
+		
+		Device device14 = new Device();
+		device1.setDevNo("999");
+		device1.setTypeStr("40门商品柜");
+		device1.setModel("CVM-SPG40");
+		device1.setCabinetNo("2");
+		device1.setFactoryNo("NNN");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device14);
+
+		Device device15 = new Device();
+		device1.setDevNo("999");
+		device1.setTypeStr("40门商品柜");
+		device1.setModel("CVM-SPG40");
+		device1.setCabinetNo("3");
+		device1.setFactoryNo("OOO");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device15);
+		
+		Device device16 = new Device();
+		device1.setDevNo("999");
+		device1.setTypeStr("64门商品柜");
+		device1.setModel("CVM-SPG64");
+		device1.setCabinetNo("4");
+		device1.setFactoryNo("PPP");
+		device1.setFactoryTimeStr("2016-07-08");
+		devices.add(device16);
+		
+		return devices;
 	}
 
 }

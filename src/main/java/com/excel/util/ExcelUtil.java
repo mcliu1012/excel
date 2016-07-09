@@ -7,9 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.Logger;
@@ -91,10 +97,10 @@ public class ExcelUtil {
 //		for(Student stu:students){
 //			System.out.println(stu.getId()+"\t  "+stu.getName()+"\t  "+stu.getSubject()+"\t  "+stu.getScore());
 //		}
-//		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
-//		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
-		String configFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
-		String srcReadFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
+		String configFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
+		String srcReadFilePath = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
+//		String configFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "config" + File.separator + "device.xml";
+//		String srcReadFilePath = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator + "test.xlsx";
 		
 		Map<String, Object> beanParams = new HashMap<String, Object>();
 		List<Device> devices = new ArrayList<Device>();
@@ -107,36 +113,106 @@ public class ExcelUtil {
 			}
 		}
 		
+		
+		
+		
+//		devices = initDevices();
+		
+		// 进行分组
+        Map<String ,List<Device>> map = group(devices, new GroupBy<String>() {
+            @Override
+            public String groupby(Object obj) {
+            	Device d = (Device)obj ;
+                return d.getDevNo() ;	// 分组依据为课程ID
+            }
+        }) ;
+        
+        System.out.println("--------------------------");
+        for (Map.Entry<String ,List<Device>> entry : map.entrySet()) {  
+      	  
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());  
+            
+            if ("777".equals(entry.getKey())) {
+            	List<Device> finalDevices = entry.getValue();
+            	
+            	// 按货柜号升序排序
+            	Collections.sort(finalDevices, new Comparator<Device>() {
+            		public int compare(Device arg0, Device arg1) {
+            			return arg0.getCabinetNo().compareTo(arg1.getCabinetNo());
+            		}
+            	});
+            	// 按型号进行分组
+            	Map<String ,List<Device>> modelMap = group(finalDevices, new GroupBy<String>() {
+            		@Override
+            		public String groupby(Object obj) {
+            			Device d = (Device)obj ;
+            			return d.getModel() ;	// 分组依据为型号
+            		}
+            	});
+            	
+            	for (Map.Entry<String ,List<Device>> modelEntry : modelMap.entrySet()) {  
+            		System.out.println("Key = " + modelEntry.getKey() + ", Value = " + modelEntry.getValue());  
+            	}
+            	
+            	// 基础校验
+	        	Set<Device> set = new HashSet<Device>();
+	            for(Device dev : finalDevices)
+	                 set.add(dev);
+	            
+	            
+	            
+	            System.out.println(set);
+	            
+	            for (Device device : set) {
+	            	System.out.println(device);
+	            }
+	            
+            	
+            }
+          
+        }
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// 构造初始化数据
-		List<Device> finalDevices = new ArrayList<Device>();
-		List<Cabinet> finalCabinets = new ArrayList<Cabinet>();
-		List<DeviceAisle> finalDeviceAisles = new ArrayList<DeviceAisle>();
-		for (Device dev : devices) {
-			if (StringUtils.isEmpty(dev.getDevNo()) || StringUtils.isEmpty(dev.getModel()) || StringUtils.isEmpty(dev.getCabinetNo())
-					|| StringUtils.isEmpty(dev.getFactoryNo()) || StringUtils.isEmpty(dev.getFactoryTimeStr()))
-				throw new Exception("数据不完整，请上传完整的文件。");
-			
-			// 校验设备编号是否已存在
-//			Device dbDevice = findDeviceByDevNo(dev.getDevNo());
-//			if (null != dbDevice)
-//				throw new Exception("导入失败，设备编号【"+ dev.getDevNo() +"】已存在");
-			
-			// 构造设备信息
-			Device finalDevice = createDevice(dev);
-			
-			Cabinet finalCabinet = new Cabinet();
-			finalCabinet.setCabinetNo(dev.getCabinetNo());
-			finalCabinet.setAisleCount(getAisleCountByModel(dev.getModel()));
-			finalCabinet.setModel(dev.getModel());
-			finalCabinet.setFactoryNo(dev.getFactoryNo());
-			finalCabinet.setFactoryTime(new Timestamp(DateUtil.getDate(dev.getFactoryTimeStr()).getTime()));
-			finalCabinet.setCreateUser(1L);
-			finalCabinet.setCreateTime(new Timestamp(System.currentTimeMillis()));
-			finalDevice.addCainets(finalCabinet);
-			
-			
-			finalDevices.add(finalDevice);
-		}
+//		List<Device> finalDevices = new ArrayList<Device>();
+//		List<Cabinet> finalCabinets = new ArrayList<Cabinet>();
+//		List<DeviceAisle> finalDeviceAisles = new ArrayList<DeviceAisle>();
+//		for (Device dev : devices) {
+//			if (StringUtils.isEmpty(dev.getDevNo()) || StringUtils.isEmpty(dev.getModel()) || StringUtils.isEmpty(dev.getCabinetNo())
+//					|| StringUtils.isEmpty(dev.getFactoryNo()) || StringUtils.isEmpty(dev.getFactoryTimeStr()))
+//				throw new Exception("数据不完整，请上传完整的文件。");
+//			
+//			// 校验设备编号是否已存在
+////			Device dbDevice = findDeviceByDevNo(dev.getDevNo());
+////			if (null != dbDevice)
+////				throw new Exception("导入失败，设备编号【"+ dev.getDevNo() +"】已存在");
+//			
+//			// 构造设备信息
+//			Device finalDevice = createDevice(dev);
+//			
+//			Cabinet finalCabinet = new Cabinet();
+//			finalCabinet.setCabinetNo(dev.getCabinetNo());
+//			finalCabinet.setAisleCount(getAisleCountByModel(dev.getModel()));
+//			finalCabinet.setModel(dev.getModel());
+//			finalCabinet.setFactoryNo(dev.getFactoryNo());
+//			finalCabinet.setFactoryTime(new Timestamp(DateUtil.getDate(dev.getFactoryTimeStr()).getTime()));
+//			finalCabinet.setCreateUser(1L);
+//			finalCabinet.setCreateTime(new Timestamp(System.currentTimeMillis()));
+//			finalDevice.addCainets(finalCabinet);
+//			
+//			
+//			finalDevices.add(finalDevice);
+//		}
 	}
 	
 	/**
@@ -278,7 +354,7 @@ public class ExcelUtil {
 		device1.setDevNo("777");
 		device1.setTypeStr("64门商品柜");
 		device1.setModel("CVM-SPG64");
-		device1.setCabinetNo("3");
+		device1.setCabinetNo("2");
 		device1.setFactoryNo("III");
 		device1.setFactoryTimeStr("2016-07-08");
 		devices.add(device9);
@@ -348,5 +424,47 @@ public class ExcelUtil {
 		
 		return devices;
 	}
+	
+	/**
+     * 分組依據接口，用于集合分組時，獲取分組依據
+     * @author	ZhangLiKun
+     * @title	GroupBy
+     * @date	2013-4-23
+     */
+    public interface GroupBy<T> {
+        T groupby(Object obj) ;
+    }
+    
+    /**
+     * 
+     * @param colls
+     * @param gb
+     * @return
+     */
+    public static final <T extends Comparable<T> ,D> Map<T ,List<D>> group(Collection<D> colls ,GroupBy<T> gb){
+        if(colls == null || colls.isEmpty()) {
+            System.out.println("分組集合不能為空!");
+            return null ;
+        }
+        if(gb == null) {
+            System.out.println("分組依據接口不能為Null!");
+            return null ;
+        }
+        Iterator<D> iter = colls.iterator() ;
+        Map<T ,List<D>> map = new HashMap<T, List<D>>() ;
+        while(iter.hasNext()) {
+            D d = iter.next() ;
+            T t = gb.groupby(d) ;
+            if(map.containsKey(t)) {
+                map.get(t).add(d) ;
+            } else {
+                List<D> list = new ArrayList<D>() ;
+                list.add(d) ;
+                map.put(t, list) ;
+            }
+        }
+        return map ;
+    }
+    
 
 }

@@ -28,17 +28,17 @@
 <!--     </mvc:annotation-driven>   -->
 <!--     <bean id="customObjectMapper" class="com.szwisdom.fmp.common.model.CustomObjectMapper"></bean> -->
     <!-- ========== SpringMVC自带的JSON转换工具,支持@ResponseBody注解========== -->
-	<bean
-		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">
 			<list>
-				<bean
-					class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
-				<bean
-					class="org.springframework.http.converter.StringHttpMessageConverter">
+			    <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+			    
+				<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
+				<bean class="org.springframework.http.converter.StringHttpMessageConverter">
 					<property name="supportedMediaTypes">
 						<list>
 							<value>text/html;charset=UTF-8</value>
+	                        <value>text/plain;charset=UTF-8</value>  
 						</list>
 					</property>
 				</bean>

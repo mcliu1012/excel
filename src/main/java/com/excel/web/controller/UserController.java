@@ -16,9 +16,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,8 +45,10 @@ public class UserController extends BaseActionController {
 	@RequestMapping(value = "/exportUser.ajax")
 	public void exportUser(HttpServletResponse response) {
 		// 生成Excel
-		String excelUrl = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator;
-		String tempUrl = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator;
+//		String excelUrl = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator;
+//		String tempUrl = "E:\\workspace\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator;
+		String excelUrl = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator;
+		String tempUrl = "F:\\gitRepository\\excel\\src\\main\\resources" + File.separator + "template" + File.separator + "temp" + File.separator;
 		if (StringUtils.isBlank(excelUrl) || StringUtils.isBlank(tempUrl)) {
 			LOG.error("excel_url获取不到");
 			return;
@@ -181,5 +188,27 @@ public class UserController extends BaseActionController {
 		System.out.println("方法三的运行时间：" + String.valueOf(endTime - startTime) + "ms");
 		return super.success("上传成功");
 	}
-
+	
+	@RequestMapping(value = "/download.ajax", method = RequestMethod.GET)
+//	public ResponseEntity<byte[]> downloadFile(HttpServletResponse response) throws IOException {
+//        return download("十多个.doc", new File("D:/金花花  论文.doc"));
+//	}
+	public void downloadFile(HttpServletResponse response) throws IOException {
+	    downloadFile(response, new File("D:/金花花  论文.doc"));
+	}
+	
+    /**
+     * @Description 下载文件 *
+     * @param fileName *
+     * @param file *
+     * @return * @throws IOException
+     */
+    public ResponseEntity<byte[]> download(String fileName, File file) throws IOException {
+        String dfileName = new String(fileName.getBytes("gb2312"), "iso8859-1");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", dfileName);
+        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file), headers, HttpStatus.OK);
+    }
+    
 }
